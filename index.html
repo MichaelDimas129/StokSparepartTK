@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SparepartTienkang.id</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="d:\UNIV RAHARJA\Tugas Kuliah\web-sederhana\TKlogo.png" alt="Deskripsi Foto" width="235" height="100">
+        </div>
+        
+        <div class="sidebar-section-title">INVENTORY</div>
+        <nav class="sidebar-menu">
+            <button class="menu-item active" onclick="switchPage('page-dashboard')" id="nav-dashboard">💻 Dashboard Spareparts</button>
+            <button class="menu-item" onclick="switchPage('page-barang-masuk')" id="nav-barang-masuk">📥 Kelola Produk Baru</button>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        
+        <div id="page-dashboard" class="page active">
+            <header class="main-header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                </div>
+            </header>
+
+            <section class="info-boxes-grid">
+                <div class="info-box bg-blue">
+                    <div class="inner">
+                        <h3 id="stat-produk-count">3</h3>
+                        <p>Jenis Sparepart</p>
+                    </div>
+                </div>
+                <div class="info-box bg-green">
+                    <div class="inner">
+                        <h3 id="stat-kategori-count">3</h3>
+                        <p>Kategori Sparepart</p>
+                    </div>
+                </div>
+                <div class="info-box bg-yellow">
+                    <div class="inner">
+                        <h3 id="total-stok-all">0</h3>
+                        <p>Total Semua Sparepart</p>
+                    </div>
+                </div>
+                <div class="info-box bg-red">
+                    <div class="inner">
+                        <h3 id="stat-kritis-count">0</h3>
+                        <p>Stok Hampir Habis</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="category-management-box">
+                <div class="box-header-clean">
+                    <span>Filter Kategori:</span>
+                </div>
+                <div class="category-actions-row">
+                    <div id="container-filter-kategori" class="filter-buttons-wrapper">
+                        </div>
+                    <button class="btn-add-cat" onclick="tambahKategoriBaru()">➕ Tambah Kategori Baru</button>
+                </div>
+            </section>
+
+            <div class="dashboard-row">
+                <div class="data-box table-box">
+                    <div class="box-header">
+                        <h3>Laporan Stok Barang</h3>
+                    </div>
+                    <div class="box-body">
+                        <table class="stok-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Kategori</th>
+                                    <th>Satuan</th>
+                                    <th>Quantity</th>
+                                    <th>Batas Minimal Stok</th>
+                                    <th>Aksi Kelola</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grid-produk">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="data-box alert-box">
+                    <div class="box-header">
+                        <h3>⚠️ Notifikasi Batas Stok</h3>
+                    </div>
+                    <div class="box-body" id="container-alerts">
+                        </div>
+                    
+                    <div class="history-sub-section">
+                        <h4>📋 Log Aktivitas</h4>
+                        <div class="history-container">
+                            <ul id="log-list"></ul>
+                        </div>
+                        <button class="btn-clear-log" onclick="hapusHistory()">Bersihkan Log 🗑️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-barang-masuk" class="page">
+            <header class="main-header">
+                <div>
+                    <h1>Input Penerimaan Barang Masuk</h1>
+                    <p>Mendaftarkan produk baru ke dalam database sistem.</p>
+                </div>
+            </header>
+
+            <section class="form-card">
+                <h3>Formulir Registrasi Produk</h3>
+                <form id="form-produk" onsubmit="tambahProdukBaru(event)">
+                    <div class="form-group">
+                        <label>Nama Sparepart / Produk</label>
+                        <input type="text" id="new-name" placeholder="Contoh: PLC , Monitor , Relay Omron" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori Komponen</label>
+                        <select id="new-category" required>
+                            </select>
+                    </div>
+                    <div class="form-row-inputs">
+                        <div class="form-group">
+                            <label>Jumlah Stok Awal</label>
+                            <input type="number" id="new-qty" placeholder="0" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Satuan Barang</label>
+                            <input type="text" id="new-unit" placeholder="Contoh: Pcs, Unit , Pasang" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Batas Stok Minimum (Peringatan Kritis)</label>
+                        <input type="number" id="new-alert-limit" min="0" value="0" required>
+                    </div>
+                    <button type="submit" class="btn-submit-large">Daftar & Masukkan ke Gudang</button>
+                </form>
+            </section>
+        </div>
+
+    </div>
+
+    <script>
+        const DEFAULT_BATAS_MINIMAL = 3; 
+        
+        const produkDefault = [
+            { id: "item-1", nama: "PLC 32SN", kategori: "PLC & Modul", qty: 6, satuan: "Pcs", batasMin: 5 },
+            { id: "item-2", nama: "PCB CY-B-DC", kategori: "Komponen Panel", qty: 5, satuan: "Pcs", batasMin: 3 },
+            { id: "item-3", nama: "Motor Inverter", kategori: "Komponen Mesin", qty: 2, satuan: "pcs", batasMin: 1 }
+        ];
+
+        const kategoriDefault = [
+            { id: "mesin", nama: "Komponen Mesin" },
+            { id: "panel", nama: "Komponen Panel" },
+            { id: "plc", nama: "PLC & Modul" }
+        ];
+
+        let databaseProduk = JSON.parse(localStorage.getItem('db_produk_v3')) || produkDefault;
+        let listKategori = JSON.parse(localStorage.getItem('db_kategori_v3')) || kategoriDefault;
+        let historyLog = JSON.parse(localStorage.getItem('history_log_v3')) || [];
+        let kategoriAktif = 'all';
+
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            if(pageId === 'page-dashboard') document.getElementById('nav-dashboard').classList.add('active');
+            if(pageId === 'page-barang-masuk') document.getElementById('nav-barang-masuk').classList.add('active');
+        }
+
+        function simpanData() {
+            localStorage.setItem('db_produk_v3', JSON.stringify(databaseProduk));
+            localStorage.setItem('db_kategori_v3', JSON.stringify(listKategori));
+            localStorage.setItem('history_log_v3', JSON.stringify(historyLog));
+        }
+
+        function filterKategori(kategori) {
+            kategoriAktif = kategori;
+            renderKategoriUI();
+            renderApp();
+        }
+
+        function tambahKategoriBaru() {
+            const namaKategori = prompt("Masukkan nama kategori baru:");
+            if (!namaKategori || namaKategori.trim() === "") return;
+
+            const idKategori = namaKategori.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const isExist = listKategori.some(kat => kat.id === idKategori);
+            if (isExist) return alert("Kategori tersebut sudah ada!");
+
+            listKategori.push({ id: idKategori, nama: namaKategori.trim() });
+            tambahLog(`Menambahkan kategori baru: "${namaKategori.trim()}"`);
+            simpanData();
+            renderKategoriUI();
+            renderApp();
+        }
+
+        function hapusKategori(idKategori, namaKategori) {
+            event.stopPropagation(); 
+            const cekProduk = databaseProduk.some(prod => prod.kategori === idKategori);
+            if (cekProduk) return alert(`Kategori "${namaKategori}" tidak bisa dihapus karena masih digunakan oleh produk!`);
+
+            if (confirm(`Apakah Anda yakin ingin menghapus kategori "${namaKategori}"?`)) {
+                listKategori = listKategori.filter(kat => kat.id !== idKategori);
+                tambahLog(`Menghapus kategori: "${namaKategori}"`);
+                if (kategoriAktif === idKategori) kategoriAktif = 'all';
+                simpanData();
+                renderKategoriUI();
+                renderApp();
+            }
+        }
+
+        function renderKategoriUI() {
+            const containerFilter = document.getElementById('container-filter-kategori');
+            if (containerFilter) {
+                containerFilter.innerHTML = '';
+                
+                const btnAll = document.createElement('button');
+                btnAll.className = `btn-filter-custom ${kategoriAktif === 'all' ? 'active' : ''}`;
+                btnAll.innerText = 'Semua';
+                btnAll.onclick = () => filterKategori('all');
+                containerFilter.appendChild(btnAll);
+
+                listKategori.forEach(kat => {
+                    const btn = document.createElement('button');
+                    btn.className = `btn-filter-custom ${kategoriAktif === kat.id ? 'active' : ''}`;
+                    btn.onclick = () => filterKategori(kat.id);
+                    btn.innerHTML = `
+                        ${kat.nama}
+                        <span class="remove-cat-x" onclick="hapusKategori('${kat.id}', '${kat.nama}')">❌</span>
+                    `;
+                    containerFilter.appendChild(btn);
+                });
+            }
+
+            const selectKategori = document.getElementById('new-category');
+            if (selectKategori) {
+                selectKategori.innerHTML = '<option value="" disabled selected>-- Pilih Kategori --</option>';
+                listKategori.forEach(kat => {
+                    const opt = document.createElement('option');
+                    opt.value = kat.id;
+                    opt.innerText = kat.nama;
+                    selectKategori.appendChild(opt);
+                });
+            }
+        }
+
+        function renderApp() {
+            const grid = document.getElementById('grid-produk');
+            const alertContainer = document.getElementById('container-alerts');
+            if(!grid) return;
+            
+            grid.innerHTML = '';
+            alertContainer.innerHTML = '';
+            
+            let totalStokOffice = 0;
+            let totalKritisCount = 0;
+
+            databaseProduk.forEach(prod => totalStokOffice += Number(prod.qty));
+            document.getElementById('total-stok-all').innerText = totalStokOffice;
+            document.getElementById('stat-produk-count').innerText = databaseProduk.length;
+            document.getElementById('stat-kategori-count').innerText = listKategori.length;
+
+            let adaAlert = false;
+
+            databaseProduk.forEach(prod => {
+                const limit = prod.batasMin !== undefined ? prod.batasMin : DEFAULT_BATAS_MINIMAL;
+                const isKritis = prod.qty <= limit;
+                
+                if (isKritis) totalKritisCount++;
+
+                if (isKritis) {
+                    adaAlert = true;
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'custom-alert-item';
+                    alertDiv.innerHTML = `
+                        <div class="alert-title-bar">Produk <strong>${prod.nama}</strong></div>
+                        <div class="alert-desc-bar">Segera Melakukan Pemesanan Kembali, sebelum stok produk kamu habis!</div>
+                    `;
+                    alertContainer.appendChild(alertDiv);
+                }
+
+                if (kategoriAktif !== 'all' && prod.kategori !== kategoriAktif) return;
+
+                const dataKat = listKategori.find(k => k.id === prod.kategori);
+                const teksKategori = dataKat ? dataKat.nama : prod.kategori;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${prod.nama}</strong></td>
+                    <td><span class="badge-kategori">${teksKategori}</span></td>
+                    <td>${prod.satuan}</td>
+                    <td>
+                        <span class="qty-text ${isKritis ? 'text-red' : 'text-green'}">
+                            ${isKritis ? '↓' : '↑'} ${prod.qty}
+                        </span>
+                        ${isKritis ? '<span class="badge-restock">Segera Restock!</span>' : ''}
+                    </td>
+                    <td>${limit}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="btn-ctrl btn-m" onclick="ubahStok('${prod.id}', -1)">-</button>
+                            <button class="btn-ctrl btn-p" onclick="ubahStok('${prod.id}', 1)">+</button>
+                            <button class="btn-del" onclick="hapusProduk('${prod.id}')">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                grid.appendChild(tr);
+            });
+
+            if (!adaAlert) {
+                alertContainer.innerHTML = '<div class="empty-alert">Semua stok barang aman dan di atas batas minimum.</div>';
+            }
+
+            document.getElementById('stat-kritis-count').innerText = totalKritisCount;
+            renderHistory();
+        }
+
+        function ubahStok(id, jumlah) {
+            const produk = databaseProduk.find(p => p.id.toString() === id.toString());
+            if (produk) {
+                const stokLama = Number(produk.qty);
+                if (stokLama + jumlah < 0) return alert("Stok tidak boleh kurang dari 0!");
+                produk.qty = stokLama + jumlah;
+                tambahLog(`${jumlah > 0 ? "Penambahan" : "Pengurangan"} "${produk.nama}" sebanyak ${Math.abs(jumlah)}. (Stok sekarang: ${produk.qty})`);
+                simpanData();
+                renderApp();
+            }
+        }
+
+        function hapusProduk(id) {
+            const produk = databaseProduk.find(p => p.id.toString() === id.toString());
+            if (produk && confirm(`Hapus "${produk.nama}" dari sistem?`)) {
+                databaseProduk = databaseProduk.filter(p => p.id.toString() !== id.toString());
+                tambahLog(`Menghapus produk "${produk.nama}"`);
+                simpanData();
+                renderApp();
+            }
+        }
+
+        function tambahLog(teks) {
+            const waktu = new Date().toLocaleString('id-ID');
+            historyLog.unshift(`[${waktu}] ${teks}`); 
+            if (historyLog.length > 30) historyLog.pop();
+        }
+
+        function renderHistory() {
+            const logList = document.getElementById('log-list');
+            if(!logList) return;
+            logList.innerHTML = '';
+            historyLog.forEach(log => {
+                const li = document.createElement('li');
+                li.innerText = log;
+                logList.appendChild(li);
+            });
+        }
+
+        function hapusHistory() {
+            if(confirm("Bersihkan riwayat log?")) {
+                historyLog = [];
+                simpanData();
+                renderHistory();
+            }
+        }
+
+        function tambahProdukBaru(event) {
+            event.preventDefault();
+            const nama = document.getElementById('new-name').value;
+            const kategori = document.getElementById('new-category').value;
+            const qty = parseInt(document.getElementById('new-qty').value);
+            const satuan = document.getElementById('new-unit').value;
+            const batasMin = parseInt(document.getElementById('new-alert-limit').value);
+            
+            databaseProduk.push({ id: "item-" + Date.now(), nama, kategori, qty, satuan, batasMin });
+            tambahLog(`Produk baru terdaftar: "${nama}" (${qty} ${satuan}).`);
+            simpanData();
+            document.getElementById('form-produk').reset();
+            alert("Produk berhasil ditambahkan!");
+            switchPage('page-dashboard');
+            renderApp();
+        }
+
+        window.onload = function() {
+            renderKategoriUI();
+            renderApp();
+        };
+    </script>
+</body>
+</html>
