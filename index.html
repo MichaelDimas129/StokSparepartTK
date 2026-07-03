@@ -8,11 +8,10 @@
 </head>
 <body>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="mySidebar">
         <div class="sidebar-brand">
-            <img src="d:\UNIV RAHARJA\Tugas Kuliah\web-sederhana\TKlogo.png" alt="Deskripsi Foto" width="235" height="100">
+            <span class="brand-icon">T</span> TIENKANG INDONESIA
         </div>
-        
         <div class="sidebar-section-title">INVENTORY</div>
         <nav class="sidebar-menu">
             <button class="menu-item active" onclick="switchPage('page-dashboard')" id="nav-dashboard">💻 Dashboard Spareparts</button>
@@ -20,7 +19,11 @@
         </nav>
     </aside>
 
-    <div class="main-content">
+    <div class="main-content" id="mainContent">
+        
+        <div class="top-navbar">
+            <button class="sidebar-toggle" onclick="toggleSidebar()" id="toggle-btn">☰</button>
+        </div>
         
         <div id="page-dashboard" class="page active">
             <header class="main-header">
@@ -61,8 +64,7 @@
                     <span>Filter Kategori:</span>
                 </div>
                 <div class="category-actions-row">
-                    <div id="container-filter-kategori" class="filter-buttons-wrapper">
-                        </div>
+                    <div id="container-filter-kategori" class="filter-buttons-wrapper"></div>
                     <button class="btn-add-cat" onclick="tambahKategoriBaru()">➕ Tambah Kategori Baru</button>
                 </div>
             </section>
@@ -84,8 +86,7 @@
                                     <th>Aksi Kelola</th>
                                 </tr>
                             </thead>
-                            <tbody id="grid-produk">
-                                </tbody>
+                            <tbody id="grid-produk"></tbody>
                         </table>
                     </div>
                 </div>
@@ -94,8 +95,7 @@
                     <div class="box-header">
                         <h3>⚠️ Notifikasi Batas Stok</h3>
                     </div>
-                    <div class="box-body" id="container-alerts">
-                        </div>
+                    <div class="box-body" id="container-alerts"></div>
                     
                     <div class="history-sub-section">
                         <h4>📋 Log Aktivitas</h4>
@@ -125,8 +125,7 @@
                     </div>
                     <div class="form-group">
                         <label>Kategori Komponen</label>
-                        <select id="new-category" required>
-                            </select>
+                        <select id="new-category" required></select>
                     </div>
                     <div class="form-row-inputs">
                         <div class="form-group">
@@ -169,6 +168,18 @@
         let historyLog = JSON.parse(localStorage.getItem('history_log_v3')) || [];
         let kategoriAktif = 'all';
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mySidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth > 768) {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('expanded');
+            } else {
+                sidebar.classList.toggle('active-mobile');
+            }
+        }
+
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
@@ -176,6 +187,10 @@
             document.getElementById(pageId).classList.add('active');
             if(pageId === 'page-dashboard') document.getElementById('nav-dashboard').classList.add('active');
             if(pageId === 'page-barang-masuk') document.getElementById('nav-barang-masuk').classList.add('active');
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('mySidebar').classList.remove('active-mobile');
+            }
         }
 
         function simpanData() {
