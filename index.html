@@ -8,10 +8,20 @@
 </head>
 <body>
 
+    <header class="top-navbar" id="topNavbar">
+        <button class="sidebar-toggle-outside" onclick="toggleSidebar()">☰</button>
+        <span class="top-navbar-title">STOK MANAGEMENT TIENKANG</span>
+    </header>
+
     <aside class="sidebar" id="mySidebar">
-        <div class="sidebar-brand">
-            <span class="brand-icon">T</span> TIENKANG INDONESIA
+        <div class="sidebar-top-wrapper">
+            <button class="sidebar-toggle-inside" onclick="toggleSidebar()">☰</button>
+            
+            <div class="sidebar-brand">
+                <span class="brand-icon">T</span> TIENKANG INDONESIA
+            </div>
         </div>
+
         <div class="sidebar-section-title">INVENTORY</div>
         <nav class="sidebar-menu">
             <button class="menu-item active" onclick="switchPage('page-dashboard')" id="nav-dashboard">💻 Dashboard Spareparts</button>
@@ -20,10 +30,6 @@
     </aside>
 
     <div class="main-content" id="mainContent">
-        
-        <div class="top-navbar">
-            <button class="sidebar-toggle" onclick="toggleSidebar()" id="toggle-btn">☰</button>
-        </div>
         
         <div id="page-dashboard" class="page active">
             <header class="main-header">
@@ -171,12 +177,15 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('mySidebar');
             const mainContent = document.getElementById('mainContent');
+            const body = document.body;
             
             if (window.innerWidth > 768) {
                 sidebar.classList.toggle('hidden');
                 mainContent.classList.toggle('expanded');
+                body.classList.toggle('sidebar-hidden-desktop');
             } else {
                 sidebar.classList.toggle('active-mobile');
+                body.classList.toggle('sidebar-active-mobile');
             }
         }
 
@@ -190,6 +199,7 @@
             
             if (window.innerWidth <= 768) {
                 document.getElementById('mySidebar').classList.remove('active-mobile');
+                document.body.classList.remove('sidebar-active-mobile');
             }
         }
 
